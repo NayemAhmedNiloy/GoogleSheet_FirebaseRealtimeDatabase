@@ -1,0 +1,39 @@
+function onFormSubmit(e) {
+  var prefix = 'EC';
+  var startNumber = 0;
+  var numDigits = 6;
+  var increment = 1;
+  var sheetName = 'DRS'; // Enter the sheet name
+  var idColumn = 'ECID';
+  var emailColumn = 'Email';
+  var emailSubject = 'Registration Confirmation for Recruitment V23.2';
+  var emailBody = 'You have successfully registered for the interview of Recruitment V23.2 by the Earth Club of North South University. Our Club Room is located at NAC111, beside the recreation hall and at the entrance from GATE 8. Visit our RECRUITMENT BOOTH at lower plaza area for further assistance. Remember your registration ID while attending the interview. Your registration ID: ';
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+  var lastRow = sheet.getLastRow();
+  var generatedId = generateId(prefix, startNumber, numDigits, increment, lastRow);
+
+  sheet.getRange(lastRow, getColumnIndex(sheet, idColumn)).setValue(generatedId);
+
+  var email = e.namedValues[emailColumn][0];
+  var emailText = emailBody + generatedId;
+
+  GmailApp.sendEmail(email, emailSubject, emailText);
+}
+
+function generateId(prefix, startNumber, numDigits, increment, lastRow) {
+  var id = prefix + '232' + padNumber(startNumber + increment * (lastRow - 1), numDigits - 3);
+  return id;
+}
+
+function padNumber(number, numDigits) {
+  var paddedNumber = String(number).padStart(numDigits, '0');
+  return paddedNumber;
+}
+
+function getColumnIndex(sheet, columnName) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var columnIndex = headers.indexOf(columnName) + 1;
+  return columnIndex;
+}
+
